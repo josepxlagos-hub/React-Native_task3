@@ -55,8 +55,30 @@ export default function App() {
   const [isOnline, setIsOnline] = useState(true);
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedContacts, setSelectedContacts] = useState([]);
+  const isShareDisabled = selectedContacts.length === 0;
+
   // TODO STEP 1: add the state that says if the modal is visible
   // TODO STEP 4: add the state for the selected contacts (an array)
+
+const handleContactPress = (contact) => {
+  setSelectedContacts((previous) =>
+    previous.includes(contact)
+      ? previous.filter((item) => item !== contact)
+      : [...previous, contact]
+  );
+};
+
+const handleConfirmShare = () => {
+  if (selectedContacts.length === 0) return;
+
+  Alert.alert(
+    'Profile shared',
+    `Alex's profile shared with ${selectedContacts.length} contact(s).`
+  );
+
+  closeModal();
+};
 
   const followers = BASE_FOLLOWERS + (isFollowing ? 1 : 0);
   const isSendDisabled = message.trim().length === 0;
@@ -94,6 +116,7 @@ export default function App() {
   // TODO STEP 2: write closeModal
   const closeModal = () => {
   setModalVisible(false);
+  setSelectedContacts([]);
 };
   // TODO STEP 4: write handleContactPress and handleConfirmShare
 
@@ -277,27 +300,70 @@ export default function App() {
       onPress={closeModal}
     />
 
-    <View style={styles.sheet}>
-      <Text style={styles.sheetTitle}>
-        Share profile
-      </Text>
+    
+<View style={styles.sheet}>
+  <Text style={styles.sheetTitle}>
+    Share profile
+  </Text>
 
-      <Text style={styles.sheetText}>
-        Choose who gets Alex's profile.
-      </Text>
+  <Text style={styles.sheetText}>
+    Choose who gets Alex's profile.
+  </Text>
 
-      <Pressable
-        onPress={closeModal}
-        style={({ pressed }) => [
-          styles.sheetClose,
-          pressed && styles.pressed,
-        ]}
-      >
-        <Text style={styles.sheetCloseText}>
-          Cancel
-        </Text>
-      </Pressable>
-    </View>
+  <ScrollView style={styles.contactList}>
+    {CONTACTS.map((contact) => {
+      const isSelected = selectedContacts.includes(contact);
+
+      return (
+        <Pressable
+          key={contact}
+          onPress={() => handleContactPress(contact)}
+          style={styles.contactRow}
+        >
+          <Text style={styles.contactName}>
+            {contact}
+          </Text>
+
+          <View
+            style={[
+              styles.checkbox,
+              isSelected && styles.checkboxSelected,
+            ]}
+          >
+            {isSelected && (
+              <Text style={styles.checkMark}>✓</Text>
+            )}
+          </View>
+        </Pressable>
+      );
+    })}
+  </ScrollView>
+
+  <Pressable
+    disabled={isShareDisabled}
+    onPress={handleConfirmShare}
+    style={[
+      styles.shareButton,
+      isShareDisabled && styles.shareButtonDisabled,
+    ]}
+  >
+    <Text style={styles.shareButtonText}>
+      {isShareDisabled
+        ? 'Select contacts'
+        : `Share with ${selectedContacts.length}`}
+    </Text>
+  </Pressable>
+
+  <Pressable
+    onPress={closeModal}
+    style={styles.sheetClose}
+  >
+    <Text style={styles.sheetCloseText}>
+      Cancel
+    </Text>
+  </Pressable>
+</View>
+
   </View>
 </Modal>
 
@@ -600,5 +666,61 @@ projectStars: {
   fontSize: 13,
   color: COLORS.primary,
   marginTop: 12,
+},
+contactList: {
+  maxHeight: 280,
+  marginTop: 16,
+},
+
+contactRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  paddingVertical: 12,
+  borderBottomWidth: 1,
+  borderBottomColor: COLORS.border,
+},
+
+contactName: {
+  fontSize: 15,
+  color: COLORS.text,
+},
+
+checkbox: {
+  width: 24,
+  height: 24,
+  borderRadius: 6,
+  borderWidth: 2,
+  borderColor: COLORS.border,
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+
+checkboxSelected: {
+  backgroundColor: COLORS.primary,
+  borderColor: COLORS.primary,
+},
+
+checkMark: {
+  color: '#FFFFFF',
+  fontWeight: '700',
+},
+
+shareButton: {
+  backgroundColor: COLORS.primary,
+  paddingVertical: 14,
+  borderRadius: 12,
+  alignItems: 'center',
+  marginTop: 16,
+},
+
+shareButtonDisabled: {
+  backgroundColor: COLORS.offline,
+},
+
+shareButtonText: {
+  color: '#FFFFFF',
+  fontSize: 15,
+  fontWeight: '700',
 },
 });
