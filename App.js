@@ -73,9 +73,7 @@ export default function App() {
     setIsComposerOpen(!isComposerOpen);
   };
 
-  const handleSharePress = () => {
-    Alert.alert('Share profile', 'Sharing is not implemented yet.');
-  };
+ 
 
   const handleSendPress = () => {
     Alert.alert('Message sent', `To Alex: "${message.trim()}"`);
@@ -218,7 +216,11 @@ export default function App() {
 
           <View style={styles.shareWrapper}>
             {/* TODO STEP 1: this button must open the modal (replace the Alert) */}
-            <Button title="Share profile" color={COLORS.primary} onPress={handleSharePress} />
+            <Button
+              title="Share profile"
+              color={COLORS.primary}
+              onPress={() => setModalVisible(true)}
+            />
           </View>
         </View>
       </View>
