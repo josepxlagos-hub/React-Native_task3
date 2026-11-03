@@ -216,6 +216,7 @@ export default function App() {
 
           <View style={styles.shareWrapper}>
             {/* TODO STEP 1: this button must open the modal (replace the Alert) */}
+
             <Button
               title="Share profile"
               color={COLORS.primary}
@@ -226,6 +227,35 @@ export default function App() {
       </View>
 
       {/* TODO STEP 1-4: add the <Modal> here */}
+
+      
+<Modal
+  animationType="slide"
+  transparent={true}
+  visible={modalVisible}
+  onRequestClose={() => {
+    Alert.alert('Modal has been closed.');
+  }}
+>
+  <View
+    style={{
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    }}
+  >
+    <View style={{ backgroundColor: 'white', padding: 20 }}>
+      <Text>Hello, I am a Modal!</Text>
+
+      <Button
+        title="Close Modal"
+        onPress={() => setModalVisible(false)}
+      />
+    </View>
+  </View>
+</Modal>
+
     </ScrollView>
   );
 }
