@@ -167,6 +167,37 @@ export default function App() {
           </Text>
 
           {/* TODO STEP 3: add the 'Recent projects' horizontal ScrollView here (use PROJECTS) */}
+          
+{/* STEP 3: Recent projects */}
+<Text style={styles.projectsTitle}>
+  Recent projects
+</Text>
+
+<ScrollView
+  horizontal
+  showsHorizontalScrollIndicator={false}
+  contentContainerStyle={styles.projectsContainer}
+>
+  {PROJECTS.map((project) => (
+    <View
+      key={project.name}
+      style={styles.projectCard}
+    >
+      <Text style={styles.projectName}>
+        {project.name}
+      </Text>
+
+      <Text style={styles.projectTech}>
+        {project.tech}
+      </Text>
+
+      <Text style={styles.projectStars}>
+        ⭐ {project.stars}
+      </Text>
+    </View>
+  ))}
+</ScrollView>
+
           <View style={styles.actions}>
             <Pressable
               onPress={handleFollowPress}
@@ -532,5 +563,42 @@ sheetCloseText: {
   fontSize: 16,
   fontWeight: '600',
   color: COLORS.primary,
+},
+projectsTitle: {
+  fontSize: 17,
+  fontWeight: '700',
+  color: COLORS.text,
+  marginTop: 20,
+  marginBottom: 12,
+},
+
+projectsContainer: {
+  gap: 12,
+  paddingRight: 12,
+},
+
+projectCard: {
+  width: 160,
+  backgroundColor: COLORS.primaryLight,
+  borderRadius: 14,
+  padding: 14,
+},
+
+projectName: {
+  fontSize: 15,
+  fontWeight: '700',
+  color: COLORS.text,
+},
+
+projectTech: {
+  fontSize: 12,
+  color: COLORS.muted,
+  marginTop: 6,
+},
+
+projectStars: {
+  fontSize: 13,
+  color: COLORS.primary,
+  marginTop: 12,
 },
 });
