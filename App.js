@@ -54,6 +54,7 @@ export default function App() {
   const [isBioExpanded, setIsBioExpanded] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [selectedSkills, setSelectedSkills] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
   // TODO STEP 1: add the state that says if the modal is visible
   // TODO STEP 4: add the state for the selected contacts (an array)
 
@@ -91,6 +92,9 @@ export default function App() {
   };
 
   // TODO STEP 2: write closeModal
+  const closeModal = () => {
+  setModalVisible(false);
+};
   // TODO STEP 4: write handleContactPress and handleConfirmShare
 
   // TODO STEP 5: wrap the whole screen in a SafeAreaView
@@ -229,32 +233,43 @@ export default function App() {
       {/* TODO STEP 1-4: add the <Modal> here */}
 
       
+
 <Modal
-  animationType="slide"
+  animationType="fade"
   transparent={true}
   visible={modalVisible}
-  onRequestClose={() => {
-    Alert.alert('Modal has been closed.');
-  }}
+  onRequestClose={closeModal}
 >
-  <View
-    style={{
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    }}
-  >
-    <View style={{ backgroundColor: 'white', padding: 20 }}>
-      <Text>Hello, I am a Modal!</Text>
+  <View style={styles.overlay}>
+    <Pressable
+      style={StyleSheet.absoluteFill}
+      onPress={closeModal}
+    />
 
-      <Button
-        title="Close Modal"
-        onPress={() => setModalVisible(false)}
-      />
+    <View style={styles.sheet}>
+      <Text style={styles.sheetTitle}>
+        Share profile
+      </Text>
+
+      <Text style={styles.sheetText}>
+        Choose who gets Alex's profile.
+      </Text>
+
+      <Pressable
+        onPress={closeModal}
+        style={({ pressed }) => [
+          styles.sheetClose,
+          pressed && styles.pressed,
+        ]}
+      >
+        <Text style={styles.sheetCloseText}>
+          Cancel
+        </Text>
+      </Pressable>
     </View>
   </View>
 </Modal>
+
 
     </ScrollView>
   );
@@ -482,4 +497,40 @@ const styles = StyleSheet.create({
     marginTop: 12,
     alignItems: 'center',
   },
+  overlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  justifyContent: 'center',
+  paddingHorizontal: 24,
+},
+
+sheet: {
+  backgroundColor: COLORS.card,
+  borderRadius: 20,
+  padding: 20,
+},
+
+sheetTitle: {
+  fontSize: 22,
+  fontWeight: '700',
+  color: COLORS.text,
+},
+
+sheetText: {
+  fontSize: 15,
+  color: COLORS.muted,
+  marginTop: 8,
+},
+
+sheetClose: {
+  marginTop: 24,
+  paddingVertical: 12,
+  alignItems: 'center',
+},
+
+sheetCloseText: {
+  fontSize: 16,
+  fontWeight: '600',
+  color: COLORS.primary,
+},
 });
