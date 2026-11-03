@@ -2,7 +2,7 @@
 // Start point: the solution of Task 2 + new data. Follow the steps in README.md.
 import { useState } from 'react';
 // TODO: add the imports you need in each step (Modal, SafeAreaView from 'react-native-safe-area-context'...)
-import { View, Text, Image, Pressable, TextInput, Button, Alert, ScrollView, StyleSheet, Platform } from 'react-native';
+import { View, Text, Image, Pressable, TextInput, Button, Alert, ScrollView, StyleSheet, Platform  ,Modal } from 'react-native';
 
 const COLORS = {
   background: '#EEF1F6',
