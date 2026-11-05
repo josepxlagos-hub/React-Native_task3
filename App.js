@@ -1,6 +1,7 @@
 // TASK 3 — Modals, ScrollView and SafeAreaView (starter)
 // Start point: the solution of Task 2 + new data. Follow the steps in README.md.
 import { useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 // TODO: add the imports you need in each step (Modal, SafeAreaView from 'react-native-safe-area-context'...)
 import { View, Text, Image, Pressable, TextInput, Button, Alert, ScrollView, StyleSheet, Platform  ,Modal } from 'react-native';
 
@@ -56,11 +57,16 @@ export default function App() {
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedContacts, setSelectedContacts] = useState([]);
+  const [searchText, setSearchText] = useState('');
   const isShareDisabled = selectedContacts.length === 0;
 
   // TODO STEP 1: add the state that says if the modal is visible
   // TODO STEP 4: add the state for the selected contacts (an array)
 
+  // TODO STEP extraa
+const filteredContacts = CONTACTS.filter((contact) =>
+  contact.toLowerCase().includes(searchText.toLowerCase())
+);
 const handleContactPress = (contact) => {
   setSelectedContacts((previous) =>
     previous.includes(contact)
@@ -117,17 +123,19 @@ const handleConfirmShare = () => {
   const closeModal = () => {
   setModalVisible(false);
   setSelectedContacts([]);
+  setSearchText('');
 };
   // TODO STEP 4: write handleContactPress and handleConfirmShare
 
   // TODO STEP 5: wrap the whole screen in a SafeAreaView
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.screenContent}
-      keyboardShouldPersistTaps="handled"
-    >
-      <View style={styles.card}>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView
+        style={styles.screen}
+        contentContainerStyle={styles.screenContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.card}>
         <Image
           source={require('./assets/banner.png')}
           style={styles.banner}
@@ -294,8 +302,8 @@ const handleConfirmShare = () => {
   visible={modalVisible}
   onRequestClose={closeModal}
 >
-  <View style={styles.overlay}>
-    <Pressable
+<SafeAreaView style={styles.overlay}>    <Pressable
+    
       style={StyleSheet.absoluteFill}
       onPress={closeModal}
     />
@@ -310,8 +318,15 @@ const handleConfirmShare = () => {
     Choose who gets Alex's profile.
   </Text>
 
+  <TextInput
+  style={styles.searchInput}
+  placeholder="Search contacts..."
+  value={searchText}
+  onChangeText={setSearchText}
+/>
+
   <ScrollView style={styles.contactList}>
-    {CONTACTS.map((contact) => {
+    {filteredContacts.map((contact) => {
       const isSelected = selectedContacts.includes(contact);
 
       return (
@@ -364,13 +379,14 @@ const handleConfirmShare = () => {
   </Pressable>
 </View>
 
-  </View>
+   </SafeAreaView>
 </Modal>
 
-
     </ScrollView>
-  );
+  </SafeAreaView>
+);
 }
+  
 
 const cardShadow = Platform.select({
   ios: {
@@ -386,6 +402,11 @@ const cardShadow = Platform.select({
 });
 
 const styles = StyleSheet.create({
+
+   safeArea: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
   screen: {
     flex: 1,
     backgroundColor: COLORS.background,
@@ -722,5 +743,15 @@ shareButtonText: {
   color: '#FFFFFF',
   fontSize: 15,
   fontWeight: '700',
+},
+searchInput: {
+  borderWidth: 1,
+  borderColor: COLORS.border,
+  borderRadius: 12,
+  paddingHorizontal: 12,
+  paddingVertical: 10,
+  marginTop: 16,
+  fontSize: 15,
+  color: COLORS.text,
 },
 });
