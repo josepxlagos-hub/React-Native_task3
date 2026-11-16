@@ -11,6 +11,7 @@ _Escribe tus respuestas debajo de cada pregunta._
 | Pregunta | Mi respuesta |
 |---|---|
 | ¿Cuántos personajes trae cada página? | |
+La API de Rick and Morty devuelve hasta 20 personajes por página. La última página puede contener menos personajes.
 | ¿Qué campo me dice si existe una página siguiente? | |
 | ¿Qué valor tiene ese campo en la última página? | |
 | ¿Qué código HTTP devuelve una búsqueda sin resultados? | |
