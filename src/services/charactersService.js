@@ -15,5 +15,7 @@ import { API_BASE_URL } from '../config/constants';
 
 export async function getCharacters({ page = 1, name = '' } = {}) {
   // TODO Paso 2: implementa la petición HTTP y devuelve el objeto del contrato.
-  throw new Error('getCharacters todavía no está implementada (Paso 2)');
+   const url = `${API_BASE_URL}?page=${page}`;
+
+  const response = await fetch(url);
 }
