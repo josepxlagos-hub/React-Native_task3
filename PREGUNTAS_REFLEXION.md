@@ -11,10 +11,18 @@ _Escribe tus respuestas debajo de cada pregunta._
 | Pregunta | Mi respuesta |
 |---|---|
 | ¿Cuántos personajes trae cada página? | |
-La API de Rick and Morty devuelve hasta 20 personajes por página. La última página puede contener menos personajes.
+La APIi de Rick and Morty devuelve hasta 20 personajes por página. La última página puede contener menos personajes.. alrededor de 4.
 | ¿Qué campo me dice si existe una página siguiente? | |
+en este caso para saberlo vemos los campos next y y prev ya que::
+next: indica la siguiente página.
+prev: indica la página anterior.
+
 | ¿Qué valor tiene ese campo en la última página? | |
+
+en casos como esos tiene el valor null, lo que indica que no existe una página siguiente.
+
 | ¿Qué código HTTP devuelve una búsqueda sin resultados? | |
+La api devuelve un error HTTP 404.
 | ¿Qué campos del personaje usa `CharacterCard`? | |
 
 ## Paso 2 · Petición HTTP
