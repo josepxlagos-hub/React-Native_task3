@@ -16,6 +16,10 @@ import StateMessage from '../components/StateMessage';
 // TODO Paso 5: importa lo que falte de 'react-native' y el componente CharacterCard.
 
 
+function Separator() {
+  return <View style={styles.separator} />;
+}
+
 
 export default function CharactersScreen() {
   // TODO Paso 3: declara los estados (personajes, carga, error).
@@ -82,9 +86,12 @@ return (
           <CharacterCard character={item} />
         )}
         keyExtractor={(item) => String(item.id)}
-        ItemSeparatorComponent={() => (
-          <View style={styles.separator} />
-        )}
+        ItemSeparatorComponent={Separator}
+
+        ListEmptyComponent={
+          <StateMessage message="No hay personajes para mostrar" />
+        }
+
         contentContainerStyle={styles.listContent}
       />
     )}
