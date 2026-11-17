@@ -1,7 +1,8 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet , FlatList } from 'react-native';
 import { COLORS } from '../config/constants';
 import { useState ,useEffect }  from 'react';
 import { getCharacters } from '../services/charactersService';
+import CharacterCard from '../components/CharacterCard';
 // ✍️ LO PROGRAMAS TÚ (Pasos 3 al 10)
 //
 // Sigue la GUIA_ALUMNO.md. Cada TODO indica en qué paso debes trabajar
@@ -12,6 +13,8 @@ import { getCharacters } from '../services/charactersService';
 
 // TODO Paso 3: importa de 'react' lo que necesites y trae getCharacters del servicio.
 // TODO Paso 5: importa lo que falte de 'react-native' y el componente CharacterCard.
+
+
 
 export default function CharactersScreen() {
   // TODO Paso 3: declara los estados (personajes, carga, error).
@@ -28,9 +31,11 @@ useEffect(() => {
       setError(null);
 
       const data = await getCharacters();
+      console.log('Personajes recibidos:', data.results.length);
       setCharacters(data.results);
 
     } catch (err) {
+      console.log('Error al cargar personajes:', err.message);
       setError(err.message);
 
     } finally {
@@ -45,16 +50,34 @@ useEffect(() => {
   // TODO Paso 9: pull to refresh.
   // TODO Paso 10: búsqueda con debounce.
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Rick and Morty</Text>
+  
+return (
+  <View style={styles.container}>
+    <Text style={styles.title}>Rick and Morty</Text>
+<Text style={{ color: COLORS.text }}>
+  Cargando: {loading ? 'Sí' : 'No'}
+</Text>
 
-      {/* TODO Paso 10: aquí va el campo de búsqueda. */}
+<Text style={{ color: COLORS.text }}>
+  Personajes: {characters.length}
+</Text>
 
-      {/* TODO Paso 5: sustituye este texto por tu FlatList. */}
-      <Text style={styles.placeholder}>Aquí aparecerá la lista de personajes.</Text>
-    </View>
-  );
+<Text style={{ color: 'red' }}>
+  Error: {error || 'Ninguno'}
+</Text>
+    {/* TODO Paso 10: aquí va el campo de búsqueda. */}
+
+    <FlatList
+      data={characters}
+      renderItem={({ item }) => (
+        <CharacterCard character={item} />
+      )}
+      keyExtractor={(item) => String(item.id)}
+  ItemSeparatorComponent={() => <View style={styles.separator} />}
+    />
+  </View>
+);
+
 }
 
 const styles = StyleSheet.create({

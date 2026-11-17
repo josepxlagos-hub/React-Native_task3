@@ -17,7 +17,8 @@ export async function getCharacters({ page = 1, name = '' } = {}) {
   // TODO Paso 2: implementa la petición HTTP y devuelve el objeto del contrato.
    const search = name.trim();
 
-const url = `${API_BASE_URL}?page=${page}${search ? `&name=${encodeURIComponent(search)}` : ''}`;
+
+const url = `${API_BASE_URL}/character?page=${page}${search ? `&name=${encodeURIComponent(search)}` : ''}`;
 
   const response = await fetch(url);
 
