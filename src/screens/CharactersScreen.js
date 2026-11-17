@@ -32,15 +32,26 @@ const [retryCount, setRetryCount] = useState(0);
 const [page, setPage] = useState(1);
 const [hasNextPage, setHasNextPage] = useState(true);
 const [loadingMore, setLoadingMore] = useState(false);
+const [paginationError, setPaginationError] = useState(null);
 const [refreshing, setRefreshing] = useState(false);
 const loadingMoreRef = useRef(false);
 const pageRef = useRef(1);
+const requestVersionRef = useRef(0);
+const searchRef = useRef('');
 
 const [search, setSearch] = useState('');
 const [debouncedSearch, setDebouncedSearch] = useState('');
 // TODO Paso 4: primera carga de datos con useEffect.
 
  
+function handleSearchChange(text) {
+  
+  searchRef.current = text.trim();
+
+  
+  setSearch(text);
+}
+
 
 async function loadCharacters(name = '', isCurrent = () => true) {
   try {
@@ -88,19 +99,25 @@ async function loadMoreCharacters() {
     page,
   });
 
-  if (loading || refreshing || loadingMoreRef.current || !hasNextPage) {
+  if (loading || refreshing || loadingMoreRef.current || !hasNextPage || search.trim() !== debouncedSearch) {
     return;
   }
 
   loadingMoreRef.current = true;
-
+  const version = requestVersionRef.current;
   try {
     setLoadingMore(true);
-
+    setPaginationError(null);
 const nextPage = pageRef.current + 1;
     console.log('Solicitando página:', nextPage);
 
     const data = await getCharacters({ page: nextPage , name: debouncedSearch,});
+    if (
+  version !== requestVersionRef.current ||
+  searchRef.current !== debouncedSearch
+) {
+  return;
+}
 
     setCharacters(prev => {
       const existingIds = new Set(prev.map(item => item.id));
@@ -118,12 +135,22 @@ const nextPage = pageRef.current + 1;
     setPage(nextPage);
     setHasNextPage(data.hasNextPage);
 
-  } catch (err) {
-    console.log('Error al cargar más personajes:', err.message);
+  }  catch (err) {
+          
+        if (
+          version !== requestVersionRef.current ||
+          searchRef.current !== debouncedSearch
+        ) {
+          return;
+        }
+        setPaginationError(err.message);
+        console.log('Error al cargar más personajes:', err.message);
+      }
 
-  } finally {
+  finally {
+    if (version === requestVersionRef.current) {
     loadingMoreRef.current = false;
-    setLoadingMore(false);
+    setLoadingMore(false);}
   }
 }
 
@@ -132,16 +159,23 @@ const nextPage = pageRef.current + 1;
 
 
 async function handleRefresh() {
-  if (refreshing || loading || loadingMoreRef.current) {
+  if (refreshing || loading || loadingMoreRef.current ||
+  search.trim() !== debouncedSearch) {
     return;
   }
+  const version = requestVersionRef.current;
 
   try {
     setRefreshing(true);
     setError(null);
-
+    setPaginationError(null);
     const data = await getCharacters({ page: 1 , name: debouncedSearch,});
-
+    if (
+  version !== requestVersionRef.current ||
+  searchRef.current !== debouncedSearch
+) {
+  return;
+}
     setCharacters(data.results);
 
     pageRef.current = 1;
@@ -151,25 +185,39 @@ async function handleRefresh() {
     console.log('Lista actualizada correctamente');
 
   } catch (err) {
+    if (version !== requestVersionRef.current ||
+  searchRef.current !== debouncedSearch) return;
     console.log('Error al actualizar:', err.message);
     setError(err.message);
 
   } finally {
-    setRefreshing(false);
+    if (version === requestVersionRef.current) {
+    setRefreshing(false);}
   }
 }
 
   
 
 useEffect(() => {
-  loadCharacters(debouncedSearch);
+  let active = true;
+  requestVersionRef.current += 1;
+  loadingMoreRef.current = false;
+  setLoadingMore(false);
+  setRefreshing(false);
+  setPaginationError(null);
+  const version = requestVersionRef.current;
+  loadCharacters(debouncedSearch, () => active && version === requestVersionRef.current &&
+    searchRef.current === debouncedSearch);
+  return () => {
+    active = false;
+  }
 }, [debouncedSearch,retryCount]);
 
 useEffect(() => {
   const timer = setTimeout(() => {
     setDebouncedSearch(search.trim());
   }, DEBOUNCE_MS);
-
+ 
   return () => clearTimeout(timer);
 }, [search]);
 
@@ -190,7 +238,7 @@ return (
       placeholder="Buscar personaje..."
       placeholderTextColor={COLORS.textMuted}
       value={search}
-      onChangeText={setSearch}
+      onChangeText={handleSearchChange}
       autoCorrect={false}
     />
     {/* TODO Paso 10: aquí va el campo de búsqueda. */}
@@ -223,7 +271,10 @@ ListFooterComponent={
       color={COLORS.primary}
       style={styles.footer}
     />
-  ) : null
+  ) : paginationError ? (
+    <Text style={styles.footerError}>
+      Error al cargar más personajes: {paginationError}
+    </Text>): null
 }
 
         ListEmptyComponent={

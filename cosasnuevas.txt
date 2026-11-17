@@ -1,0 +1,4 @@
+useffect: declñara un efecto
+catch: manejo de errores cuando la primera falla
+actionlabel:establece el texto del boton action al presionar
+FlatList: renderiza grandes componentes de datos
