@@ -1,8 +1,9 @@
-import { View, Text, StyleSheet , FlatList, ActivityIndicator,  Pressable,} from 'react-native';
+import { View, Text, StyleSheet , FlatList, ActivityIndicator,} from 'react-native';
 import { COLORS } from '../config/constants';
 import { useState ,useEffect }  from 'react';
 import { getCharacters } from '../services/charactersService';
 import CharacterCard from '../components/CharacterCard';
+import StateMessage from '../components/StateMessage';
 // ✍️ LO PROGRAMAS TÚ (Pasos 3 al 10)
 //
 // Sigue la GUIA_ALUMNO.md. Cada TODO indica en qué paso debes trabajar
@@ -21,6 +22,7 @@ export default function CharactersScreen() {
 const [characters, setCharacters] = useState([]);
 const [loading, setLoading] = useState(true);
 const [error, setError] = useState(null);
+const [retryCount, setRetryCount] = useState(0);
 
 
 // TODO Paso 4: primera carga de datos con useEffect.
@@ -43,59 +45,52 @@ const [error, setError] = useState(null);
       setLoading(false);
     }
   }
-  useEffect(() => {
+  
+useEffect(() => {
   loadCharacters();
-}, []);
+}, [retryCount]);
+
   // TODO Paso 6: estados de carga / error y reintento.
   // TODO Paso 8: paginación (estado extra + función para cargar más).
   // TODO Paso 9: pull to refresh.
   // TODO Paso 10: búsqueda con debounce.
 
   
+
 return (
   <View style={styles.container}>
     <Text style={styles.title}>Rick and Morty</Text>
-    {loading && (
-  <ActivityIndicator
-    size="large"
-    color={COLORS.primary}
-    style={styles.loader}
-  />
-)}
-<Text style={{ color: COLORS.text }}>
-  Cargando: {loading ? 'Sí' : 'No'}
-</Text>
-
-<Text style={{ color: COLORS.text }}>
-  Personajes: {characters.length}
-</Text>
-
-{error && (
-  <Text style={styles.footerError}>
-    No se pudieron cargar los personajes: {error}
-  </Text>
-)}
-
-{error && (
-  <Pressable onPress={loadCharacters}>
-    <Text style={{ color: COLORS.primary }}>
-      Reintentar
-    </Text>
-  </Pressable>
-)}
 
     {/* TODO Paso 10: aquí va el campo de búsqueda. */}
 
-    <FlatList
-      data={characters}
-      renderItem={({ item }) => (
-        <CharacterCard character={item} />
-      )}
-      keyExtractor={(item) => String(item.id)}
-  ItemSeparatorComponent={() => <View style={styles.separator} />}
-    />
+    {loading ? (
+      <ActivityIndicator
+        size="large"
+        color={COLORS.primary}
+        style={styles.loader}
+      />
+    ) : error && characters.length === 0 ? (
+      <StateMessage
+        message={`No se pudieron cargar los personajes: ${error}`}
+        actionLabel="Reintentar"
+        onAction={() => setRetryCount(prev => prev + 1)}
+      />
+    ) : (
+      <FlatList
+        data={characters}
+        renderItem={({ item }) => (
+          <CharacterCard character={item} />
+        )}
+        keyExtractor={(item) => String(item.id)}
+        ItemSeparatorComponent={() => (
+          <View style={styles.separator} />
+        )}
+        contentContainerStyle={styles.listContent}
+      />
+    )}
   </View>
 );
+
 
 }
 
