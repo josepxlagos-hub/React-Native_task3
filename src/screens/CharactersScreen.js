@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS } from '../config/constants';
-import { useState } from 'react';
+import { useState ,useEffect }  from 'react';
+import { getCharacters } from '../services/charactersService';
 // ✍️ LO PROGRAMAS TÚ (Pasos 3 al 10)
 //
 // Sigue la GUIA_ALUMNO.md. Cada TODO indica en qué paso debes trabajar
@@ -20,6 +21,25 @@ const [error, setError] = useState(null);
 
 
 // TODO Paso 4: primera carga de datos con useEffect.
+useEffect(() => {
+ async function loadCharacters() {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const data = await getCharacters();
+      setCharacters(data.results);
+
+    } catch (err) {
+      setError(err.message);
+
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  loadCharacters();
+}, []);
   // TODO Paso 6: estados de carga / error y reintento.
   // TODO Paso 8: paginación (estado extra + función para cargar más).
   // TODO Paso 9: pull to refresh.
