@@ -1,5 +1,5 @@
-import { View, Text, StyleSheet , FlatList, ActivityIndicator,} from 'react-native';
-import { COLORS } from '../config/constants';
+import { View, Text, StyleSheet , FlatList, ActivityIndicator,TextInput,} from 'react-native';
+import { COLORS , DEBOUNCE_MS} from '../config/constants';
 import { useState ,useEffect, useRef }  from 'react';
 import { getCharacters } from '../services/charactersService';
 import CharacterCard from '../components/CharacterCard';
@@ -35,32 +35,47 @@ const [loadingMore, setLoadingMore] = useState(false);
 const [refreshing, setRefreshing] = useState(false);
 const loadingMoreRef = useRef(false);
 const pageRef = useRef(1);
+
+const [search, setSearch] = useState('');
+const [debouncedSearch, setDebouncedSearch] = useState('');
 // TODO Paso 4: primera carga de datos con useEffect.
 
- async function loadCharacters() {
-
  
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getCharacters();
-      console.log('Personajes recibidos:', data.results.length);
-      setCharacters(data.results);
-      pageRef.current = 1;
-      setPage(1);
-      setHasNextPage(data.hasNextPage);
 
+async function loadCharacters(name = '', isCurrent = () => true) {
+  try {
+    setLoading(true);
+    setError(null);
 
-    } catch (err) {
-      console.log('Error al cargar personajes:', err.message);
-      setError(err.message);
+    const data = await getCharacters({
+      page: 1,
+      name,
+    });
 
-    }
-    
-    finally {
+    if (!isCurrent()) return;
+
+    console.log('Buscando:', name);
+    console.log('Personajes encontrados:', data.results.length);
+
+    setCharacters(data.results);
+    pageRef.current = 1;
+    setPage(1);
+    setHasNextPage(data.hasNextPage);
+
+  } catch (err) {
+    if (!isCurrent()) return;
+
+    console.log('Error al buscar personajes:', err.message);
+    setError(err.message);
+
+  } finally {
+    if (isCurrent()) {
       setLoading(false);
     }
   }
+}
+
+
 
 
 
@@ -85,7 +100,7 @@ async function loadMoreCharacters() {
 const nextPage = pageRef.current + 1;
     console.log('Solicitando página:', nextPage);
 
-    const data = await getCharacters({ page: nextPage });
+    const data = await getCharacters({ page: nextPage , name: debouncedSearch,});
 
     setCharacters(prev => {
       const existingIds = new Set(prev.map(item => item.id));
@@ -125,7 +140,7 @@ async function handleRefresh() {
     setRefreshing(true);
     setError(null);
 
-    const data = await getCharacters({ page: 1 });
+    const data = await getCharacters({ page: 1 , name: debouncedSearch,});
 
     setCharacters(data.results);
 
@@ -147,8 +162,16 @@ async function handleRefresh() {
   
 
 useEffect(() => {
-  loadCharacters();
-}, [retryCount]);
+  loadCharacters(debouncedSearch);
+}, [debouncedSearch,retryCount]);
+
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setDebouncedSearch(search.trim());
+  }, DEBOUNCE_MS);
+
+  return () => clearTimeout(timer);
+}, [search]);
 
 
   // TODO Paso 6: estados de carga / error y reintento.
@@ -160,8 +183,16 @@ useEffect(() => {
 
 return (
   <View style={styles.container}>
+    
     <Text style={styles.title}>Rick and Morty</Text>
-
+      <TextInput
+      style={styles.input}
+      placeholder="Buscar personaje..."
+      placeholderTextColor={COLORS.textMuted}
+      value={search}
+      onChangeText={setSearch}
+      autoCorrect={false}
+    />
     {/* TODO Paso 10: aquí va el campo de búsqueda. */}
 
     {loading ? (
