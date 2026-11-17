@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet , FlatList, ActivityIndicator,} from 'react-native';
 import { COLORS } from '../config/constants';
-import { useState ,useEffect }  from 'react';
+import { useState ,useEffect, useRef }  from 'react';
 import { getCharacters } from '../services/charactersService';
 import CharacterCard from '../components/CharacterCard';
 import StateMessage from '../components/StateMessage';
@@ -29,15 +29,26 @@ const [error, setError] = useState(null);
 const [retryCount, setRetryCount] = useState(0);
 
 
+const [page, setPage] = useState(1);
+const [hasNextPage, setHasNextPage] = useState(true);
+const [loadingMore, setLoadingMore] = useState(false);
+const loadingMoreRef = useRef(false);
+const pageRef = useRef(1);
 // TODO Paso 4: primera carga de datos con useEffect.
 
  async function loadCharacters() {
+
+ 
     try {
       setLoading(true);
       setError(null);
       const data = await getCharacters();
       console.log('Personajes recibidos:', data.results.length);
       setCharacters(data.results);
+      pageRef.current = 1;
+      setPage(1);
+      setHasNextPage(data.hasNextPage);
+
 
     } catch (err) {
       console.log('Error al cargar personajes:', err.message);
@@ -49,10 +60,65 @@ const [retryCount, setRetryCount] = useState(0);
       setLoading(false);
     }
   }
+
+
+
+
+async function loadMoreCharacters() {
+  console.log('onEndReached ejecutado', {
+    loading,
+    loadingMore,
+    hasNextPage,
+    page,
+  });
+
+  if (loading || loadingMoreRef.current || !hasNextPage) {
+    return;
+  }
+
+  loadingMoreRef.current = true;
+
+  try {
+    setLoadingMore(true);
+
+const nextPage = pageRef.current + 1;
+    console.log('Solicitando página:', nextPage);
+
+    const data = await getCharacters({ page: nextPage });
+
+    setCharacters(prev => {
+      const existingIds = new Set(prev.map(item => item.id));
+
+      const newCharacters = data.results.filter(
+        item => !existingIds.has(item.id)
+      );
+
+      return [...prev, ...newCharacters];
+    });
+
+    console.log('Personajes recibidos:', data.results.length);
+
+    pageRef.current = nextPage;
+    setPage(nextPage);
+    setHasNextPage(data.hasNextPage);
+
+  } catch (err) {
+    console.log('Error al cargar más personajes:', err.message);
+
+  } finally {
+    loadingMoreRef.current = false;
+    setLoadingMore(false);
+  }
+}
+
+
+
   
+
 useEffect(() => {
   loadCharacters();
 }, [retryCount]);
+
 
   // TODO Paso 6: estados de carga / error y reintento.
   // TODO Paso 8: paginación (estado extra + función para cargar más).
@@ -88,11 +154,25 @@ return (
         keyExtractor={(item) => String(item.id)}
         ItemSeparatorComponent={Separator}
 
+ListFooterComponent={
+  loadingMore ? (
+    <ActivityIndicator
+      size="small"
+      color={COLORS.primary}
+      style={styles.footer}
+    />
+  ) : null
+}
+
         ListEmptyComponent={
           <StateMessage message="No hay personajes para mostrar" />
         }
 
         contentContainerStyle={styles.listContent}
+
+        onEndReached={loadMoreCharacters}
+        onEndReachedThreshold={0.5}
+
       />
     )}
   </View>
