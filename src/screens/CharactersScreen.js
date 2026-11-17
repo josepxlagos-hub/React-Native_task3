@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS } from '../config/constants';
-
+import { useState } from 'react';
 // ✍️ LO PROGRAMAS TÚ (Pasos 3 al 10)
 //
 // Sigue la GUIA_ALUMNO.md. Cada TODO indica en qué paso debes trabajar
@@ -14,7 +14,12 @@ import { COLORS } from '../config/constants';
 
 export default function CharactersScreen() {
   // TODO Paso 3: declara los estados (personajes, carga, error).
-  // TODO Paso 4: primera carga de datos con useEffect.
+const [characters, setCharacters] = useState([]);
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState(null);
+
+
+// TODO Paso 4: primera carga de datos con useEffect.
   // TODO Paso 6: estados de carga / error y reintento.
   // TODO Paso 8: paginación (estado extra + función para cargar más).
   // TODO Paso 9: pull to refresh.
