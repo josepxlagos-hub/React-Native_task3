@@ -32,6 +32,7 @@ const [retryCount, setRetryCount] = useState(0);
 const [page, setPage] = useState(1);
 const [hasNextPage, setHasNextPage] = useState(true);
 const [loadingMore, setLoadingMore] = useState(false);
+const [refreshing, setRefreshing] = useState(false);
 const loadingMoreRef = useRef(false);
 const pageRef = useRef(1);
 // TODO Paso 4: primera carga de datos con useEffect.
@@ -72,7 +73,7 @@ async function loadMoreCharacters() {
     page,
   });
 
-  if (loading || loadingMoreRef.current || !hasNextPage) {
+  if (loading || refreshing || loadingMoreRef.current || !hasNextPage) {
     return;
   }
 
@@ -112,6 +113,36 @@ const nextPage = pageRef.current + 1;
 }
 
 
+
+
+
+async function handleRefresh() {
+  if (refreshing || loading || loadingMoreRef.current) {
+    return;
+  }
+
+  try {
+    setRefreshing(true);
+    setError(null);
+
+    const data = await getCharacters({ page: 1 });
+
+    setCharacters(data.results);
+
+    pageRef.current = 1;
+    setPage(1);
+    setHasNextPage(data.hasNextPage);
+
+    console.log('Lista actualizada correctamente');
+
+  } catch (err) {
+    console.log('Error al actualizar:', err.message);
+    setError(err.message);
+
+  } finally {
+    setRefreshing(false);
+  }
+}
 
   
 
@@ -172,6 +203,10 @@ ListFooterComponent={
 
         onEndReached={loadMoreCharacters}
         onEndReachedThreshold={0.5}
+
+        refreshing={refreshing}
+        onRefresh={handleRefresh}
+
 
       />
     )}
