@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet , FlatList } from 'react-native';
+import { View, Text, StyleSheet , FlatList, ActivityIndicator,  Pressable,} from 'react-native';
 import { COLORS } from '../config/constants';
 import { useState ,useEffect }  from 'react';
 import { getCharacters } from '../services/charactersService';
@@ -19,17 +19,16 @@ import CharacterCard from '../components/CharacterCard';
 export default function CharactersScreen() {
   // TODO Paso 3: declara los estados (personajes, carga, error).
 const [characters, setCharacters] = useState([]);
-const [loading, setLoading] = useState(false);
+const [loading, setLoading] = useState(true);
 const [error, setError] = useState(null);
 
 
 // TODO Paso 4: primera carga de datos con useEffect.
-useEffect(() => {
+
  async function loadCharacters() {
     try {
       setLoading(true);
       setError(null);
-
       const data = await getCharacters();
       console.log('Personajes recibidos:', data.results.length);
       setCharacters(data.results);
@@ -38,11 +37,13 @@ useEffect(() => {
       console.log('Error al cargar personajes:', err.message);
       setError(err.message);
 
-    } finally {
+    }
+    
+    finally {
       setLoading(false);
     }
   }
-
+  useEffect(() => {
   loadCharacters();
 }, []);
   // TODO Paso 6: estados de carga / error y reintento.
@@ -54,6 +55,13 @@ useEffect(() => {
 return (
   <View style={styles.container}>
     <Text style={styles.title}>Rick and Morty</Text>
+    {loading && (
+  <ActivityIndicator
+    size="large"
+    color={COLORS.primary}
+    style={styles.loader}
+  />
+)}
 <Text style={{ color: COLORS.text }}>
   Cargando: {loading ? 'Sí' : 'No'}
 </Text>
@@ -62,9 +70,20 @@ return (
   Personajes: {characters.length}
 </Text>
 
-<Text style={{ color: 'red' }}>
-  Error: {error || 'Ninguno'}
-</Text>
+{error && (
+  <Text style={styles.footerError}>
+    No se pudieron cargar los personajes: {error}
+  </Text>
+)}
+
+{error && (
+  <Pressable onPress={loadCharacters}>
+    <Text style={{ color: COLORS.primary }}>
+      Reintentar
+    </Text>
+  </Pressable>
+)}
+
     {/* TODO Paso 10: aquí va el campo de búsqueda. */}
 
     <FlatList
