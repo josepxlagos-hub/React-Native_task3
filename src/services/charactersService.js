@@ -15,7 +15,27 @@ import { API_BASE_URL } from '../config/constants';
 
 export async function getCharacters({ page = 1, name = '' } = {}) {
   // TODO Paso 2: implementa la petición HTTP y devuelve el objeto del contrato.
-   const url = `${API_BASE_URL}?page=${page}`;
+   const search = name.trim();
+
+const url = `${API_BASE_URL}?page=${page}${search ? `&name=${encodeURIComponent(search)}` : ''}`;
 
   const response = await fetch(url);
+
+  if (response.status === 404) {
+  return {
+    results: [],
+    hasNextPage: false
+  };
+}
+
+if (!response.ok) {
+  throw new Error(`Error HTTP: ${response.status}`);
+}
+  const data = await response.json();
+
+  return {
+
+    results: data.results,
+    hasNextPage: data.info.next !== null
+  };
 }
